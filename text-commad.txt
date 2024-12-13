@@ -3,7 +3,7 @@ Larvel
     - php artisan key:generate   = ຄຳສັ່ງສ້າງ App key
     - composer install           = ຄຳສັ່ງຕິດຕັ້ງ Ribrary ຂອງ Laravel
     - php artisan migrate         = ຄຳສັ່ງສ້າງ ຕາຕະລາງຖານຂໍ້ມູນ
-    - php artisan install:api    = ຄຳສັ່ງສ້າງ api 
+    - php artisan install:api    = ຄຳສັ່ງສ້າງ-ຕິດຕັ້ງ api 
 
 VueJS
     - npm install                = ເປັນຄຳສັ່ງຕິດຕັ້ງ Package ຂອງ ​Vue
