@@ -77,7 +77,7 @@
           <li class="nav-item navbar-dropdown dropdown-user dropdown">
             <a class="nav-link dropdown-toggle hide-arrow p-0" href="javascript:void(0);" data-bs-toggle="dropdown">
               <div class="avatar avatar-online">
-                <img src="../assets/img/avatars/1.png" alt="" class="w-px-40 h-auto rounded-circle">
+                <img :src="url + '/assets/img/avatars/1.png'" alt="" class="w-px-40 h-auto rounded-circle">
               </div>
             </a>
             <ul class="dropdown-menu dropdown-menu-end">
@@ -86,7 +86,7 @@
                   <div class="d-flex">
                     <div class="flex-shrink-0 me-3">
                       <div class="avatar avatar-online">
-                        <img src="../assets/img/avatars/1.png" alt="" class="w-px-40 h-auto rounded-circle">
+                        <img :src="url + '/assets/img/avatars/1.png'" alt="" class="w-px-40 h-auto rounded-circle">
                       </div>
                     </div>
                     <div class="flex-grow-1">
@@ -121,8 +121,8 @@
                 <div class="dropdown-divider my-1"></div>
               </li>
               <li>
-                <a class="dropdown-item" href="javascript:void(0);">
-                  <i class="bx bx-power-off bx-md me-3"></i><span>Log Out</span>
+                <a class="dropdown-item" @click="Logout()" href="javascript:void(0);">
+                  <i class="bx bx-power-off bx-md me-3"></i><span>ອອກຈາກລະບົບ</span>
                 </a>
               </li>
             </ul>
@@ -207,6 +207,7 @@
 <script>
 
   import { useStore } from './Store/Auth';
+  import axios from 'axios';
 
 export default {
   setup(){
@@ -215,9 +216,31 @@ export default {
   },
     data() {
       return {
-        
+        url: window.location.origin
       }
     },
+    methods:{
+      Logout(){
+        axios.get('api/logout',{ headers:{ Authorization: 'Bearer '+this.store.get_token } }).then((res)=>{
+
+          if(res.data.success){
+              // ເຄຼຍຂໍ້ມູນໃນ localstorage
+              localStorage.removeItem('web_token');
+              localStorage.removeItem('web_user');
+
+              // ເຄຼຍຂໍ້ມູນໃນ pinia
+              this.store.remove_token();
+              this.store.remove_user();
+
+              // go to login page
+              this.$router.push('/login');
+          }
+
+        }).catch((error)=>{
+          console.log(error);
+        })
+      }
+    }
 }
 </script>
 <style lang="">

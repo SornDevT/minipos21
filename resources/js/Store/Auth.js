@@ -1,8 +1,8 @@
-import { remove } from "@vue/shared";
+
 import { defineStore } from "pinia";
 export const useStore = defineStore('auth',{
     state: ()=>({
-        token: '',
+        token: null,
         user: null
     }),
     getters:{

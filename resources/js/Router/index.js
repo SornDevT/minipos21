@@ -6,6 +6,32 @@ import Transection from "../Pages/Transection.vue";
 import Report from "../Pages/Report.vue";
 import Login from "../Pages/Login.vue";
 import Register from "../Pages/Register.vue"
+import { useStore } from "../Store/Auth";
+
+
+// created meddleware from = /login, to = /
+
+const authMiddleware = (to, from , next) => {
+
+    const token = localStorage.getItem('web_token');
+    const user = localStorage.getItem('web_user');
+    const store = useStore();
+
+    if(token){
+        // ຖ້າມີ token ໃນ localstorage ເກັບໄວ້ໃນ pinia
+        store.set_token(token);
+        store.set_user(user);
+        next();
+    } else {
+        // console.log('Go to login')
+        // ບໍ່ມີ token
+        next({
+            path:'/login',
+            replace: true
+        })
+    }
+
+}
 
 
 
@@ -17,21 +43,33 @@ export const routes = [
     {
         name: 'store',
         path: '/store',
-        component: Store
+        component: Store,
+        meta:{
+            middleware: [authMiddleware]
+        }
     },
     {
         name: 'pos',
         path: '/Pos',
-        component: Pos
+        component: Pos,
+        meta:{
+            middleware: [authMiddleware]
+        }
     },
     {
         name: 'Transection',
         path: '/transection',
-        component: Transection
+        component: Transection,
+        meta:{
+            middleware: [authMiddleware]
+        }
     },{
         name: 'Report',
         path: '/report',
-        component: Report
+        component: Report,
+        meta:{
+            middleware: [authMiddleware]
+        }
     },
     {
         name: 'login',
@@ -57,5 +95,30 @@ const router = createRouter({
         window.scrollTo(0,0)
     }
 });
+
+
+router.beforeEach((to,from,next)=>{
+    
+    const token = localStorage.getItem('web_token');
+
+    if(to.meta.middleware){
+        to.meta.middleware.forEach(middleware=>middleware(to,from,next))
+    } else {
+        if(to.path == '/login' || to.path == '/'){
+            if(token){
+                next({
+                    path:'/store',
+                    replace: true
+                })
+            } else {
+                next();
+            }
+        } else {
+            next();
+        }
+    }
+});
+
+
 
 export default router;
