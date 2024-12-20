@@ -23,5 +23,9 @@ Route::group(["middleware"=>["auth:api"]],
 // store
 Route::group(["middleware"=>["auth:api"]],
     function(){
+        Route::get('store',[StoreController::class,'index']);
         Route::post('store/add',[StoreController::class,'add']);
+        Route::get('store/edit/{id}',[StoreController::class,'edit']);
+        Route::post('store/update/{id}',[StoreController::class,'update']);
+        Route::delete('store/delete/{id}',[StoreController::class,'delete']);
     });

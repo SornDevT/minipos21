@@ -51,10 +51,10 @@
             <div class="col-md-6 mb-2">
                 <div class=" d-flex align-items-center">
                     
-                    <i class='bx bx-sort-up fs-4 cursor-pointer me-2'></i>
-                    <i class='bx bx-sort-down fs-4 cursor-pointer me-2'></i>
+                    <i class='bx bx-sort-up fs-4 cursor-pointer me-2' v-if="Sort=='asc'" @click="Sort='desc'"></i>
+                    <i class='bx bx-sort-down fs-4 cursor-pointer me-2' v-if="Sort=='desc'" @click="Sort='asc'"></i>
                     <div>
-                        <select  class="form-select">
+                        <select  class="form-select" v-model="PerPage" @change="GetStore(1)">
                             <option value="5">5</option>
                             <option value="10">10</option>
                             <option value="20">20</option>
@@ -66,8 +66,8 @@
                 <div class=" d-flex justify-content-end">
                     <div class="d-flex">
                             <div class="input-group">
-                            <input type="text" class="form-control" placeholder="ຄົ້ນຫາ..." aria-label="Recipient's username" aria-describedby="button-addon2">
-                            <button class="btn btn-primary px-2 me-2" type="button" id="button-addon2"><i class='bx bx-search'></i></button>
+                            <input type="text" class="form-control" placeholder="ຄົ້ນຫາ..." @keyup.enter="GetStore(1)" v-model="Search" >
+                            <button class="btn btn-primary px-2 me-2" type="button" @click="GetStore(1)" ><i class='bx bx-search'></i></button>
                             </div>
                     </div>
                     <button type="button" @click="AddStore()" class="btn rounded-pill btn-info">ເພີ່ມໃໝ່</button>
@@ -78,36 +78,37 @@
         <table class="table table-bordered">
             <thead>
             <tr>
-                <th>ID</th>
+                <th class="text-center" >ID</th>
                 <th>ຮູບພາບ</th>
                 <th>ຊື່ສິນຄ້າ</th>
-                <th>ຈຳນວນ</th>
+                <th text-center>ຈຳນວນ</th>
                 <th>ລາຄາຊື້</th>
                 <th>ຈັດການ</th>
             </tr>
             </thead>
             <tbody>
-            <tr v-for="item in 20" :key="item">
-                <td>{{ item }}</td>
-                <td>image</td>
-                <td>product name</td>
-                <td>120</td>
-                <td>30,000 k</td>
+            <tr v-for="item in StoreData.data" :key="item">
+                <td class="text-center">{{ item.id }}</td>
+                <td>{{  }} </td>
+                <td>{{ item.name }}</td>
+                <td class="text-center">{{ formatPrice(item.qty) }}</td>
+                <td class="text-end">{{ formatPrice(item.price_buy) }}</td>
                 <td>
                 <div class="dropdown">
                     <button type="button" class="btn p-0 dropdown-toggle hide-arrow" data-bs-toggle="dropdown"><i class="bx bx-dots-vertical-rounded"></i></button>
                     <div class="dropdown-menu">
-                    <a class="dropdown-item" href="javascript:void(0);"><i class="bx bx-edit-alt me-1"></i> Edit</a>
-                    <a class="dropdown-item" href="javascript:void(0);"><i class="bx bx-trash me-1"></i> Delete</a>
+                    <a class="dropdown-item" href="javascript:void(0);" @click="EditStore(item.id)"><i class="bx bx-edit-alt me-1"></i> ແກ້ໄຂ</a>
+                    <a class="dropdown-item" href="javascript:void(0);" @click="DelStore(item.id)" ><i class="bx bx-trash me-1"></i> ລຶບ</a>
                     </div>
                 </div>
                 </td>
             </tr>
-
-            
-            
             </tbody>
         </table>
+
+
+        <Pagination :pagination="StoreData" :offset="4" @paginate='GetStore($event)'  />
+
         </div>
     </div>
 
@@ -123,7 +124,7 @@ export default {
     setup(){
         const store = useStore();
         return { store }
-    },
+    }, 
     data() {
         return {
             ShowForm:false,
@@ -134,7 +135,12 @@ export default {
                 qty:'',
                 price_buy:'',
                 price_sell:''
-            }
+            },
+            StoreData:[],
+            Sort:"desc",
+            PerPage:5,
+            Search:'',
+            EditID:'',
         }
     },
     computed:{
@@ -147,6 +153,10 @@ export default {
         }
     },
     methods:{
+        formatPrice(value) {
+            let val = (value / 1).toFixed(0).replace(",", ".");
+            return val.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        },
         AddStore(){
             this.ShowForm = true
             this.FormType = true
@@ -158,8 +168,70 @@ export default {
             this.FormStore.price_buy = '';
             this.FormStore.price_sell = '';
         },
+
         CancelStore(){
             this.ShowForm = false
+        },
+        EditStore(id){
+
+            // ເກັບ id ໄວ້ອັບເດດ 
+            this.EditID = id;
+            // ປ່ຽນສະຖານະ ຟອມເປັນການອັບເດດ
+            this.FormType = false;
+            
+            axios.get(`api/store/edit/${id}`,{ headers:{ Authorization: 'Bearer '+this.store.get_token }}).then((res)=>{
+
+                this.FormStore = res.data;
+
+                // ເປັີດຟອມ
+                this.ShowForm = true;
+
+            }).catch((error)=>{
+                if(error.response){
+                        if(error.response.status==401){
+                            // ເຄຼຍຂໍ້ມູນໃນ localstorage
+                            localStorage.removeItem('web_token');
+                            localStorage.removeItem('web_user');
+
+                            // ເຄຼຍຂໍ້ມູນໃນ pinia
+                            this.store.remove_token();
+                            this.store.remove_user();
+
+                            // go to login page
+                            this.$router.push('/login');
+                        }
+                    }
+            })
+        },
+        DelStore(id){
+
+            axios.delete(`api/store/delete/${id}`,{ headers:{ Authorization: 'Bearer '+this.store.get_token }}).then((res)=>{
+
+                if(res.data.success){
+                    // get store
+                    this.GetStore();
+                } else {
+
+                }
+
+            }).catch((error)=>{
+                if(error.response){
+                        if(error.response.status==401){
+                            // ເຄຼຍຂໍ້ມູນໃນ localstorage
+                            localStorage.removeItem('web_token');
+                            localStorage.removeItem('web_user');
+
+                            // ເຄຼຍຂໍ້ມູນໃນ pinia
+                            this.store.remove_token();
+                            this.store.remove_user();
+
+                            // go to login page
+                            this.$router.push('/login');
+                        }
+                    }
+            })
+
+
         },
         SaveStore(){
             if(this.FormType){
@@ -167,6 +239,7 @@ export default {
                 axios.post('api/store/add',this.FormStore, { headers:{ Authorization: 'Bearer '+this.store.get_token }}).then((res)=>{
                     if(res.data.success){
                         this.ShowForm = false;
+                        this.GetStore();
                     } else {
 
                     }
@@ -190,8 +263,56 @@ export default {
 
             } else {
                 // ອັບເດດຂໍ້ມູນ
+                // update store
+                axios.post(`api/store/update/${this.EditID}`,this.FormStore, { headers:{ Authorization: 'Bearer '+this.store.get_token }}).then((res)=>{
 
+                    if(res.data.success){
+                        this.ShowForm = false;
+                        this.GetStore();
+                    } else {
+
+                    }
+
+                }).catch((error)=>{
+                    if(error.response){
+                    if(error.response.status==401){
+                        // ເຄຼຍຂໍ້ມູນໃນ localstorage
+                        localStorage.removeItem('web_token');
+                        localStorage.removeItem('web_user');
+
+                        // ເຄຼຍຂໍ້ມູນໃນ pinia
+                        this.store.remove_token();
+                        this.store.remove_user();
+
+                        // go to login page
+                        this.$router.push('/login');
+                    }
+                }
+                })
             }
+        },
+        GetStore(page){
+            // get store data by axios
+            axios.get(`api/store?page=${page}&sort=${this.Sort}&perpage=${this.PerPage}&search=${this.Search}`,{ headers:{ Authorization: 'Bearer '+this.store.get_token }}).then((res)=>{
+                // console.log(res.data);
+                this.StoreData = res.data;
+            }).catch((error)=>{
+                if(error.response){
+                    if(error.response.status==401){
+                        // ເຄຼຍຂໍ້ມູນໃນ localstorage
+                        localStorage.removeItem('web_token');
+                        localStorage.removeItem('web_user');
+
+                        // ເຄຼຍຂໍ້ມູນໃນ pinia
+                        this.store.remove_token();
+                        this.store.remove_user();
+
+                        // go to login page
+                        this.$router.push('/login');
+                    }
+                }
+            });
+
         },
         testjwt(){
             axios.post('api/testjwt',{},{ headers:{ Authorization: 'Bearer '+this.store.get_token } }).then((res)=>{
@@ -217,6 +338,19 @@ export default {
                     }
                 }
             })
+        }
+    },
+    created(){
+        this.GetStore(1);
+    },
+    watch:{
+        Sort(){
+            this.GetStore(1);
+        },
+        Search(){
+            if(this.Search==''){
+                this.GetStore(1);
+            }
         }
     }
 }
