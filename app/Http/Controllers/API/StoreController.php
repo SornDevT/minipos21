@@ -38,10 +38,26 @@ class StoreController extends Controller
 
     public function add(Request $request){
         try {
+
+            // ກຳນົດເສັ້ນທາງການອັບໂຫຼດ
+            $upload_path = "assets/img";
+
+            if($request->file('image')){
+
+                 // gen ຊື່ຮູບພາບໃໝ່ 
+                 $new_name_img = time().".".$request->image->getClientOriginalExtension();
+
+                 // ອັບໂຫຼດ
+                 $request->image->move(public_path($upload_path),$new_name_img);
+
+            } else {
+                $new_name_img = "";
+            }
+
            
             $store = new Store([
                 'name' => $request->name,
-                // 'image'=> 
+                'image'=> $new_name_img,
                 'qty'=> $request->qty,
                 'price_buy'=> $request->price_buy,
                 'price_sell'=> $request->price_sell,
