@@ -32,6 +32,13 @@
   </router-link>
 </li>
 
+<li class="menu-item " :class="$route.path=='/category'?'active':''" >
+  <router-link to="/category" class="menu-link">
+    <i class='bx bx-objects-horizontal-left menu-icon'></i>
+    <div class="text-truncate" data-i18n="Dashboards">ໝວດໝູ່</div>
+  </router-link>
+</li>
+
 <li class="menu-item " :class="$route.path=='/pos'?'active':''" >
   <router-link to="/pos" class="menu-link">
     <i class='bx bx-cart-alt menu-icon'></i>

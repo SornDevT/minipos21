@@ -3,6 +3,7 @@ All Tabel
 1.      Table: Store  (Model)
     Fill            Fill Type 
     - name          string 
+    - category_id   integer
     - image         string 
     - qty           integer
     - price_buy     integer 
@@ -35,6 +36,10 @@ All Tabel
     - name          string
     - qty           integer
     - price         integer
+
+6.      Table: Category  (Model)
+    Fill            Fill Type
+    - name          string
 
 
 List Controller:

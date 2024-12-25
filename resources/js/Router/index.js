@@ -1,6 +1,7 @@
 import { createWebHistory, createRouter } from "vue-router";
 
 import Store from "../Pages/Store.vue";
+import Category from "../Pages/Category.vue";
 import Pos from "../Pages/Pos.vue";
 import Transection from "../Pages/Transection.vue";
 import Report from "../Pages/Report.vue";
@@ -44,6 +45,14 @@ export const routes = [
         name: 'store',
         path: '/store',
         component: Store,
+        meta:{
+            middleware: [authMiddleware]
+        }
+    },
+    {
+        name: 'category',
+        path: '/category',
+        component: Category,
         meta:{
             middleware: [authMiddleware]
         }

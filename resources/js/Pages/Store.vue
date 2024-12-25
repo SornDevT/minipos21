@@ -23,9 +23,18 @@
                     <label  class="form-label fs-6">ຊື່ສິນຄ້າ:</label>
                     <input type="text" class="form-control" v-model="FormStore.name"  placeholder="..." >
                 </div>
-                <div class="mb-2">
-                    <label  class="form-label fs-6">ຈຳນວນ:</label>
-                    <cleave :options="options" class="form-control" v-model="FormStore.qty"  placeholder="..." />
+                <div class=" row ">
+                    <div class="col-md-6 mb-2">
+                        <label  class="form-label fs-6">ຈຳນວນ:</label>
+                        <cleave :options="options" class="form-control" v-model="FormStore.qty"  placeholder="..." />
+                    </div>
+                    <div class="col-md-6 mb-2">
+                        <label  class="form-label fs-6">ໝວດໝູ່ສິນຄ້າ:</label>
+                        <select class="form-select" v-model="FormStore.category_id" >
+                            <option v-for="item in CatData" :key="item.id" :value="item.id">{{ item.name }}</option>
+                        </select>
+                    </div>
+                   
                 </div>
                 <div class="row">
                     <div class="col-md-6">
@@ -59,11 +68,15 @@
                     
                     <i class='bx bx-sort-up fs-4 cursor-pointer me-2' v-if="Sort=='asc'" @click="Sort='desc'"></i>
                     <i class='bx bx-sort-down fs-4 cursor-pointer me-2' v-if="Sort=='desc'" @click="Sort='asc'"></i>
-                    <div>
-                        <select  class="form-select" v-model="PerPage" @change="GetStore(1)">
+                    <div class="d-flex">
+                        <select  class="form-select me-2" v-model="PerPage" @change="GetStore(1)">
                             <option value="5">5</option>
                             <option value="10">10</option>
                             <option value="20">20</option>
+                        </select>
+                        <select  class="form-select" v-model="category"  @change="GetStore(1)">
+                            <option value="all">ທັງໝົດ</option>
+                            <option v-for="item in CatData" :key="item.id" :value="item.id">{{ item.name }}</option>
                         </select>
                     </div>
                 </div>
@@ -87,6 +100,7 @@
                 <th class="text-center" >ID</th>
                 <th>ຮູບພາບ</th>
                 <th>ຊື່ສິນຄ້າ</th>
+                <th>ໝວດໝູ່</th>
                 <th text-center>ຈຳນວນ</th>
                 <th>ລາຄາຊື້</th>
                 <th>ຈັດການ</th>
@@ -101,6 +115,7 @@
                 
                 </td>
                 <td>{{ item.name }}</td>
+                <td>{{ item.category_name }}</td>
                 <td class="text-center">{{ formatPrice(item.qty) }}</td>
                 <td class="text-end">{{ formatPrice(item.price_buy) }}</td>
                 <td>
@@ -139,12 +154,15 @@ export default {
     }, 
     data() {
         return {
+            category:'all',
+            CatData:[],
             url: window.location.origin,
             Image_preview: window.location.origin + '/assets/img/upload_img.jpg',
             ShowForm:false,
             FormType:true,
             FormStore:{
                 name:'',
+                category_id:'',
                 image:'',
                 qty:'',
                 price_buy:'',
@@ -260,6 +278,12 @@ export default {
             axios.get(`api/store/edit/${id}`,{ headers:{ Authorization: 'Bearer '+this.store.get_token }}).then((res)=>{
 
                 this.FormStore = res.data;
+
+                if(this.FormStore.image){
+                    this.Image_preview = this.url + '/assets/img/'+ this.FormStore.image;
+                } else {
+                    this.Image_preview = this.url + '/assets/img/upload_img.jpg';
+                }
 
                 // ເປັີດຟອມ
                 this.ShowForm = true;
@@ -439,7 +463,7 @@ export default {
         },
         GetStore(page){
             // get store data by axios
-            axios.get(`api/store?page=${page}&sort=${this.Sort}&perpage=${this.PerPage}&search=${this.Search}`,{ headers:{ Authorization: 'Bearer '+this.store.get_token }}).then((res)=>{
+            axios.get(`api/store?page=${page}&sort=${this.Sort}&perpage=${this.PerPage}&search=${this.Search}&category=${this.category}`,{ headers:{ Authorization: 'Bearer '+this.store.get_token }}).then((res)=>{
                 // console.log(res.data);
                 this.StoreData = res.data;
             }).catch((error)=>{
@@ -459,6 +483,26 @@ export default {
                 }
             });
 
+        },
+        GetCat(){
+            axios.get('api/category',{ headers:{ Authorization: 'Bearer '+this.store.get_token }}).then((res)=>{
+                this.CatData = res.data;
+            }).catch((error)=>{
+                if(error.response){
+                    if(error.response.status==401){
+                        // ເຄຼຍຂໍ້ມູນໃນ localstorage
+                        localStorage.removeItem('web_token');
+                        localStorage.removeItem('web_user');
+
+                        // ເຄຼຍຂໍ້ມູນໃນ pinia
+                        this.store.remove_token();
+                        this.store.remove_user();
+
+                        // go to login page
+                        this.$router.push('/login');
+                    }
+                }
+            });
         },
         testjwt(){
             axios.post('api/testjwt',{},{ headers:{ Authorization: 'Bearer '+this.store.get_token } }).then((res)=>{
@@ -488,6 +532,7 @@ export default {
     },
     created(){
         this.GetStore(1);
+        this.GetCat();
     },
     watch:{
         Sort(){
