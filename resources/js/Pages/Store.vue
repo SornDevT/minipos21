@@ -89,6 +89,7 @@
                             <button class="btn btn-primary px-2 me-2" type="button" @click="GetStore(1)" ><i class='bx bx-search'></i></button>
                             </div>
                     </div>
+                    
                     <button type="button" @click="AddStore()" class="btn rounded-pill btn-info">ເພີ່ມໃໝ່</button>
                 </div>
             </div>
