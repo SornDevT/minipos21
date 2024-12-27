@@ -9,7 +9,7 @@ class Transection extends Model
     //
     protected $fillable = [
         'tran_id',
-        'Tran_type',
+        'tran_type',
         'product_id',
         'qty',
         'price',
