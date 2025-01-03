@@ -46,7 +46,7 @@ Route::group(["middleware"=>["auth:api"]],
     Route::group(["middleware"=>["auth:api"]],
     function(){
         Route::post('transection/add',[TransectionController::class,'add']);
-        // Route::post('category/add',[CategoryController::class,'add']);
+        Route::get('transection',[TransectionController::class,'index']);
         // Route::get('category/edit/{id}',[CategoryController::class,'edit']);
         // Route::post('category/update/{id}',[CategoryController::class,'update']);
         // Route::delete('category/delete/{id}',[CategoryController::class,'delete']);

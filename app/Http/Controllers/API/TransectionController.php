@@ -75,7 +75,7 @@ class TransectionController extends Controller
                     "tran_type" => "income",
                     "product_id"=> $item["id"],
                     "qty"=> $item["qty"],
-                    "price"=> $item["price"],
+                    "price"=> $item["price"]*$item["qty"],
                     "detail"=> $item["name"]
                 ]);
                 $tran->save();
@@ -124,5 +124,41 @@ class TransectionController extends Controller
 
         return response()->json($response);
     
+    }
+
+    public function index(){
+        
+        $sort = \Request::get('sort');
+        $per_page = \Request::get('per_page');
+        $month_type = \Request::get('month_type');
+        $dmy = \Request::get('dmy'); // 2025-01-01
+
+     
+
+        $m = explode("-",$dmy)[1];
+        $y = explode("-",$dmy)[0];
+
+        // get all transection
+        if($month_type == "m"){
+
+            $tran = Transection::orderBy("id",$sort)
+            ->whereYear("created_at",$y) 
+            ->whereMonth("created_at",$m)
+            ->paginate($per_page)
+            ->toArray();
+
+           
+
+        } else if($month_type == "y"){
+
+            $tran = Transection::orderBy("id",$sort)
+            ->whereYear("created_at",$y)
+            ->paginate($per_page)
+            ->toArray();
+
+        }
+
+        return array_reverse($tran);
+
     }
 }
