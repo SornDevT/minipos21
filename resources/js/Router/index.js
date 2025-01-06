@@ -1,10 +1,10 @@
 import { createWebHistory, createRouter } from "vue-router";
 
 import Store from "../Pages/Store.vue";
-import Category from "../Pages/Category.vue";
-import Pos from "../Pages/Pos.vue";
-import Transection from "../Pages/Transection.vue";
-import Report from "../Pages/Report.vue";
+// import Category from "../Pages/Category.vue";
+// import Pos from "../Pages/Pos.vue";
+// import Transection from "../Pages/Transection.vue";
+// import Report from "../Pages/Report.vue";
 import Login from "../Pages/Login.vue";
 import Register from "../Pages/Register.vue"
 import { useStore } from "../Store/Auth";
@@ -52,7 +52,7 @@ export const routes = [
     {
         name: 'category',
         path: '/category',
-        component: Category,
+        component: ()=>import('../Pages/Category.vue'),
         meta:{
             middleware: [authMiddleware]
         }
@@ -60,7 +60,7 @@ export const routes = [
     {
         name: 'pos',
         path: '/Pos',
-        component: Pos,
+        component: ()=>import('../Pages/Pos.vue'),
         meta:{
             middleware: [authMiddleware]
         }
@@ -68,14 +68,14 @@ export const routes = [
     {
         name: 'Transection',
         path: '/transection',
-        component: Transection,
+        component: ()=>import('../Pages/Transection.vue'),
         meta:{
             middleware: [authMiddleware]
         }
     },{
         name: 'Report',
         path: '/report',
-        component: Report,
+        component: ()=>import('../Pages/Report.vue'),
         meta:{
             middleware: [authMiddleware]
         }

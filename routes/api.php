@@ -8,6 +8,7 @@ use App\Http\Controllers\API\StoreController;
 use App\Http\Controllers\API\CategoryController;
 use App\Http\Controllers\API\TransectionController;
 use App\Http\Controllers\API\BillController;
+use App\Http\Controllers\API\ReportController;
 
 
 // Route::get('/user', function (Request $request) {
@@ -55,6 +56,11 @@ Route::group(["middleware"=>["auth:api"]],
 Route::group(["middleware"=>["auth:api"]],
     function(){
         Route::get('bills/print/{id}',[BillController::class,'print_bill']);
+    });
+
+    Route::group(["middleware"=>["auth:api"]],
+    function(){
+        Route::post('report',[ReportController::class,'create_report']);
     });
 
    

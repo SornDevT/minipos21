@@ -5,7 +5,7 @@
   <div class="card-body">
 
     <div v-if="ShowForm">
-        {{ FormStore }}
+        <!-- {{ FormStore }} -->
         <div class="text-end">
             <button type="button" @click="SaveStore()" :disabled="CheckForm" class="btn rounded-pill btn-success me-2">ບັນທຶກຂໍ້ມູນ</button>
             <button type="button" @click="CancelStore()" class="btn rounded-pill btn-danger">ຍົກເລີກ</button>
@@ -132,7 +132,7 @@
             </tbody>
         </table>
 
-        <button class="btn btn-primary" @click="showAlert">Hello world</button>
+        <!-- <button class="btn btn-primary" @click="showAlert">Hello world</button> -->
 
 
         <Pagination :pagination="StoreData" :offset="4" @paginate='GetStore($event)'  />
@@ -262,6 +262,8 @@ export default {
             this.FormStore.qty = '';
             this.FormStore.price_buy = '';
             this.FormStore.price_sell = '';
+
+            this.Image_preview = this.url + '/assets/img/upload_img.jpg';
         },
 
         CancelStore(){
